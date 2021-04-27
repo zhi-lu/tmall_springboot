@@ -1,0 +1,40 @@
+<!--suppress HtmlRequiredAltAttribute -->
+<div th:fragment="html">
+    <script>
+        $ (function () {
+            let oid = getUrlParams ("oid");
+            let total = getUrlParams ("total");
+            let data4Vue = {
+                oid: '',
+                total: ''
+            };
+            // ViewModal
+            let vue = new Vue ({
+                el: '#workingArea',
+                data: data4Vue,
+                // 绑定Vue成功
+                mounted: function () {
+                    this.oid = oid;
+                    this.total = total;
+                }
+            })
+        })
+    </script>
+    <div class="aliPayPageDiv">
+        <div class="aliPayPageLogo">
+            <div style="clear: both"></div>
+        </div>
+        <div>
+            <span class="confirmMoneyText">扫一扫付款(元)</span>
+            <span class="confirmMoney">¥ {{ total | formatMoneyFilter }}</span>
+        </div>
+        <div>
+            <img class="aliPayImg" src="img/site/alipay2wei.png">
+        </div>
+        <div>
+            <a :href="'payed?oid=' + oid + '&total=' + total">
+                <button class="confirmPay">确认支付</button>
+            </a>
+        </div>
+    </div>
+</div>

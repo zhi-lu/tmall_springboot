@@ -1,0 +1,180 @@
+<!--suppress ALL -->
+<div th:fragment="html">
+    <!--suppress JSUnusedLocalSymbols, SpellCheckingInspection -->
+    <script>
+        $ (function () {
+            let oiid = getUrlParams ("oiid");
+            let data4Vue = {
+                uri: 'foreBuy',
+                total: 0,
+                orderItemList: [],
+                order: {address: '', post: '', receiver: '', mobile: '', userMessage: ''}
+            };
+            // ViewModel
+            let vue = new Vue ({
+                el: '#workingArea',
+                data: data4Vue,
+                // 加载Vue成功
+                mounted: function () {
+                    this.load ();
+                },
+                methods: {
+                    load: function () {
+                        let url = this.uri + "/?oiid=" + oiid;
+                        // axios 通过get 获取相关的订单项数据.....
+                        axios.get (url).then (function (response) {
+                            let result = response.data;
+                            vue.total = result.data.total;
+                            vue.orderItemList = result.data.orderItemList;
+
+                            vue.$nextTick (function () {
+                                // 先进行渲染
+                                linkDefaultActions ()
+                            })
+                        })
+                    },
+                    // 提交订单
+                    submitOrder: function () {
+                        let url = "foreCreateOrder";
+                        axios.post (url, this.order).then (function (response) {
+                            let result = response.data;
+                            let oid = result.data.oid;
+                            let total = result.data.total;
+                            // 跳转到支付页面
+                            location.href = "aliPay?oid=" + oid + "&total=" + total;
+                        })
+                    }
+                }
+            })
+        })
+    </script>
+    <div class="buyPageDiv">
+        <div class="buyFlow">
+            <img class="pull-left" src="img/site/buyflow.png">
+            <div style="clear: both"></div>
+        </div>
+        <div class="address">
+            <div class="addressTip">请输入收货地址</div>
+            <div>
+                <table class="addressTable">
+                    <tr>
+                        <td class="firstColumn">详细地址<span class="redStar">*</span></td>
+                        <td>
+                        <textarea name="address" v-model="order.address"
+                                  placeholder="建议您如实填写准确的收货地址.和电话,门牌号码,我们便于第一时间向您发货（=・ω・=）"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>邮政编码</td>
+                        <td>
+                            <input name="post" v-model="order.post" type="text"
+                                   placeholder="请填写地区的邮政编码,谢谢.（ ＞ω＜）　（如果您不清楚地区的邮政编码则可以填写 0000000)"></td>
+                    </tr>
+                    <tr>
+                        <td>收货人姓名 <span class="redStar">*</span></td>
+                        <td><input name="receiver" v-model="order.receiver" type="text"
+                                   placeholder="用户名长度不超过25个字哦（>。ヘ）"></td>
+                    </tr>
+                    <tr>
+                        <td>联系电话<span class="redStar">*</span></td>
+                        <td><input name="mobile" v-model="order.mobile" type="text"
+                                   placeholder="请输入11位的电话号码（＞。☆）"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="productList">
+            <div class="productListTip">确认订单信息</div>
+            <table class="productListTable">
+                <thead>
+                <tr>
+                    <th colspan="2" class="productListTableFirstColumn">
+                        <img class="tmallbuy" src="img/site/tmallbuy.png"/>
+                        <a class="marketLink" href="#nowhere">店铺:天猫店铺</a>
+                        <a class="wangwangLink" href="#nowhere">
+                            <span class="wangwangGif"></span>
+                        </a>
+                    </th>
+                    <th>单价</th>
+                    <th>数量</th>
+                    <th>小计</th>
+                    <th>配送方式</th>
+                </tr>
+                <tr class="rowborder">
+                    <td colspan="2"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </thead>
+                <tbody class="productListTableTbody">
+                <tr class="orderItemTR" v-for="orderItem,index in orderItemList">
+                    <td class="orderItemFirstTD">
+                        <img class="orderItemImg"
+                             :src="'img/productSingle_middle/' + orderItem.product.firstProductImage.id + '.jpg'">
+                    </td>
+                    <td class="orderItemProductInfo">
+                        <a :href="'product?pid=' + orderItem.product.id">
+                            {{orderItem.product.name}}
+                        </a>
+                        <img src="img/site/creditcard.png" title="支持信用卡支付呀--=-~@^_^@">
+                        <img src="img/site/7day.png" title="消费者保护协议,7天内无条件退货---*^o^*">
+                        <img src="img/site/promise.png" title="承诺品质如一,值得信赖...---#^_^# ">
+                    </td>
+                    <td>
+                        <span class="orderItemProductPrice">
+                            {{orderItem.product.promotePrice | formatMoneyFilter }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="orderItemProductNumber">
+                            {{orderItem.number}}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="orderItemUnitSum">
+                            {{orderItem.product.promotePrice * orderItem.number | formatMoneyFilter}}
+                        </span>
+                    </td>
+                    <td rowspan="5" class="orderItemLastTD" v-if="index==0">
+                        <label class="orderItemDeliveryLabel">
+                            <input type="radio" value=" " checked="checked">
+                            普通配送
+                        </label>
+                        <select class="orderItemDeliverySelect" class="form-control">
+                            <option>普通,免邮费</option>
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="orderItemSumDiv">
+                <div class="pull-left">
+                    <span class="leaveMessageText">给卖家留言:</span>
+                    <span>
+                        <img class="leaveMessageImg" src="img/site/leaveMessage.png">
+                    </span>
+                    <span class="leaveMessageTextareaSpan">
+                        <textarea name="userMessage" v-model="order.userMessage"
+                                  class="leaveMessageTextarea"></textarea>
+                        <div><span>还可以输入200个字</span></div>
+                    </span>
+                </div>
+                <span class="pull-right">店铺合集(含运费): ¥
+                    {{total | formatMoneyFilter}}</span>
+            </div>
+        </div>
+        <div class="orderItemTotalSumDiv">
+            <div class="pull-right">
+                <span>实际付款</span>
+                <span class="orderItemTotalSumSpan">{{total | formatMoneyFilter}}</span>
+            </div>
+        </div>
+        <div class="submitOrderDiv">
+            <button type="submit" class="submitOrderButton" @click="submitOrder">
+                提交订单
+            </button>
+        </div>
+    </div>
+</div>

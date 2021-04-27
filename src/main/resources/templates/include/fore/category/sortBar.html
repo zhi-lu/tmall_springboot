@@ -1,0 +1,73 @@
+<div th:fragment="html">
+    <!--suppress JSJQueryEfficiency -->
+    <script>
+        $ (function () {
+            $ ("input.sortBarPrice").keyup (function () {
+                let num = $ (this).val ();
+                if (num.length === 0) {
+                    $ ('div.productUnit').show ();
+                    return;
+                }
+                num = parseInt (num);
+                // 如果num为非数字:
+                if (isNaN (num)) {
+                    num = 1;
+                }
+                // num 小于零.
+                if (num < 1) {
+                    num = 1;
+                }
+                $ (this).val (num);
+                let begin = $ ('input.beginPrice').val ();
+                let end = $ ('input.endPrice').val ();
+                if (!isNaN (begin) && !isNaN (end)) {
+                    $ ('div.productUnit').hide ();
+                    $ ('div.productUnit').each (function () {
+                        let price = $ (this).attr ("price");
+                        price = Number (price);
+                        if (price >= begin && price <= end) {
+                            $ (this).show ();
+                        }
+                    })
+                }
+            })
+        })
+    </script>
+    <div class="categorySortBar">
+        <table class="categorySortBarTable categorySortTable">
+            <tr>
+                <td :class="{'grayColumn':(sort==null || sort=='all')}">
+                    <a :href="'?cid=' + category.id + '&sort=all'">综合<span
+                            class="glyphicon glyphicon-arrow-down"></span></a>
+                </td>
+                <td :class="{'grayColumn':(sort==null || sort=='review')}">
+                    <a :href="'?cid=' + category.id + '&sort=review'">人气<span
+                            class="glyphicon glyphicon-arrow-down"></span></a>
+                </td>
+                <td :class="{'grayColumn':(sort==null || sort=='date')}">
+                    <a :href="'?cid=' + category.id + '&sort=date'">新品<span
+                            class="glyphicon glyphicon-arrow-down"></span></a>
+                </td>
+                <td :class="{'grayColumn':(sort==null || sort=='saleCount')}">
+                    <a :href="'?cid=' + category.id + '&sort=saleCount'">销售<span
+                            class="glyphicon glyphicon-arrow-down"></span></a>
+                </td>
+                <td :class="{'grayColumn':(sort==null || sort=='price')}">
+                    <a :href="'?cid=' + category.id + '&sort=price'">价格<span
+                            class="glyphicon glyphicon-resize-vertical"></span></a>
+                </td>
+            </tr>
+        </table>
+        <table class="categorySortBarTable">
+            <tr>
+                <td><label>
+                    <input class="sortBarPrice beginPrice" type="text" placeholder="请输入起始价格">
+                </label></td>
+                <td class="grayColumn priceMiddleColumn">-</td>
+                <td><label>
+                    <input class="sortBarPrice endPrice" type="text" placeholder="请输入最大价格">
+                </label></td>
+            </tr>
+        </table>
+    </div>
+</div>

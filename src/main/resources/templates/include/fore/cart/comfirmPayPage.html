@@ -1,0 +1,104 @@
+<!--suppress HtmlRequiredAltAttribute, HtmlDeprecatedAttribute, HtmlUnknownAnchorTarget -->
+<div th:fragment="html">
+    <script>
+        $ (function () {
+            let oid = getUrlParams ("oid")
+            let data4Vue = {
+                uri: 'foreConfirmPay',
+                order: []
+            };
+            // ViewModal
+            let vue = new Vue ({
+                el: '#workingArea',
+                data: data4Vue,
+                // 绑定Vue成功
+                mounted: function () {
+                    this.load ();
+                },
+                methods: {
+                    load: function () {
+                        let url = this.uri + "?oid=" + oid;
+                        axios.get (url).then (function (response) {
+                            vue.order = response.data;
+                        })
+                    }
+                }
+            })
+        });
+    </script>
+    <div class="confirmPayPageDiv">
+        <div class="confirmPayImageDiv">
+            <img src="img/site/confirmPayFlow.png">
+            <div class="confirmPayTime1">
+                {{order.createDate | formatDateFilter }}
+            </div>
+            <div class="confirmPayTime2">
+                {{order.payDate | formatDateFilter }}
+            </div>
+            <div class=confirmPayTime3>
+                {{order.deliveryDate | formatDateFilter }}
+            </div>
+        </div>
+        <div class="confirmPayOrderInfoDiv">
+            <div class="confirmPayOrderItemText">我已收到货品啦~~,确认支付宝支付.</div>
+        </div>
+        <div class="confirmPayOrderItemDiv">
+            <div class="confirmPayOrderItemText">订单信息</div>
+            <table class="confirmPayOrderItemTable">
+                <thead>
+                <tr>
+                    <td colspan="2">宝贝</td>
+                    <td width="120px">单价</td>
+                    <td width="120px">数量</td>
+                    <td width="120px">商品总价</td>
+                    <td width="120px">运费</td>
+                </tr>
+                </thead>
+                <tr v-for="orderItem in order.orderItemList">
+                    <td>
+                        <img width="50px"
+                             :src="'img/productSingle_middle/' + orderItem.product.firstProductImage.id + '.jpg'">
+                    </td>
+                    <td class="confirmPayOrderItemProductLink">
+                        <a :href="'product?pid=' + orderItem.product.id ">{{orderItem.product.name}}</a>
+                    </td>
+                    <td>¥ {{orderItem.product.promotePrice | formatMoneyFilter}}</td>
+                    <td>{{orderItem.number}}</td>
+                    <td><span class="conformPayProductPrice">
+                        ¥ {{orderItem.product.promotePrice * orderItem.number | formatMoneyFilter}}
+                    </span></td>
+                    <td>快递 0:00 (免运费呀~~)</td>
+                </tr>
+            </table>
+            <div class="confirmPayOrderItemText pull-right">
+                实际付款 : <span class="confirmPayOrderItemSumPrice">
+                {{order.totalPrice | formatMoneyFilter }}
+            </span>
+            </div>
+        </div>
+        <div class="confirmPayOrderDetailDiv">
+            <table class="confirmPayOrderDetailTable">
+                <tr>
+                    <td>订单编号:</td>
+                    <td>{{order.orderCode}}<img src="img/site/confirmOrderTmall.png"></td>
+                </tr>
+                <tr>
+                    <td>卖家信息:</td>
+                    <td>天猫商城<span class="confirmPayOrderDetailWangWangGif"></span></td>
+                </tr>
+                <tr>
+                    <td>买家信息:</td>
+                    <td>{{order.address}},{{order.receiver}},{{order.mobile}},{{order.post}}</td>
+                </tr>
+                <tr>
+                    <td>成交时间:</td>
+                    <td>{{order.createDate | formatDateFilter}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="confirmPayButtonDiv">
+            <div class="confirmPayWarning">您先收到货,在确认支付,否则会导致钱财两空哦（＞﹏＜）</div>
+            <a :href="'orderConfirmed?oid=' + order.id "><button class="confirmPayButton">确认付款</button></a>
+        </div>
+    </div>
+</div>

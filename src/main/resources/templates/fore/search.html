@@ -1,0 +1,23 @@
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 有关前端搜索结果页面           ===
+===             TODO : 2021/3/21                    ===
+=======================================================
+-->
+<!DOCTYPE html>
+<!--suppress HtmlRequiredLangAttribute -->
+<html xmlns:th="http://www.thymeleaf.org">
+<!--suppress HtmlRequiredTitleElement -->
+<head th:include="include/fore/header::html('搜索页面 ≧▽≦')">
+</head>
+<body>
+<div id="workingArea">
+    <div th:replace="include/fore/top::html"></div>
+    <div th:replace="include/fore/simpleSearch::html"></div>
+    <div th:replace="include/fore/searchPage::html"></div>
+    <div th:replace="include/fore/footer::html"></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!--suppress ALL -->
+<template th:fragment="html(title)">
+    <script src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script>
+    <!-- vue.js 格式化日期用的 -->
+    <link href="css/back/style.css" rel="stylesheet">
+
+    <script>
+
+        /**
+         * @see checkEmpty
+         * 检查获取的值和属性判断是否为空
+         */
+        function checkEmpty(value, text) {
+
+            if (null == value || value.length <= 0) {
+                window.alert(text + "输入为空或小于零啦,不能为空哦-( ´͈ ᵕ `͈ )◞♡");
+                window.alert("(,,•́ . •̀,,)--请重新写输入哦")
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * @see #getUrlParams
+         * 获取地址栏参数的函数..
+         */
+        function getUrlParams(para) {
+            let search = location.search;
+            //页面URL的查询部分字符串
+            let arrPara = [];
+            //参数数组。数组单项为包含参数名和参数值的字符串，如“para=value”
+            let arrVal = [];
+            //参数值数组。用于存储查找到的参数值
+
+            if (search !== "") {
+                let index = 0;
+                search = search.substr(1);
+                //去除开头的“?”
+                arrPara = search.split("&");
+                // 根据 "&" 分割地址.返回一个数组..
+                for (let i in arrPara) {
+                    let paraPre = para + "=";
+                    //参数前缀。即参数名+“=”，如“para=”
+                    if (arrPara[i].indexOf(paraPre) === 0 && paraPre.length < arrPara[i].length) {
+                        arrVal[index] = decodeURI(arrPara[i].substr(paraPre.length));
+                        //顺带URI解码避免出现乱码
+                        index++;
+                    }
+                }
+            }
+
+            if (arrVal.length === 1) {
+                return arrVal[0];
+            } else if (arrVal.length === 0) {
+                return null;
+            } else {
+                return arrVal;
+            }
+        }
+
+        /**
+         * @see checkNumber
+         * 判断值是否数字 (小数和整数)
+         * */
+        function checkNumber(value, text) {
+
+            if (value.length === 0) {
+                alert(text + "(´• ᵕ •`)*✲ﾟ*不能为空哦");
+                return false;
+            }
+            if (isNaN(value)) {
+                alert(text + "╭( ′• o •′ )╭☞必须是数字哦");
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * @see #chechInt
+         * 判断值是否整数
+         */
+        function checkInt(value, text) {
+            if (value.length === 0) {
+                alert(text + "╭( ′• o •′ )╭☞不能为空哦");
+                return false;
+            }
+            if (parseInt(value) !== value) {
+                alert(text + "(๑´0`๑),必须是整数哦");
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * @see checkDeleteLink
+         * 确实是否要删除
+         */
+        function checkDeleteLink() {
+            let confirmDelete = confirm("确认要删除(˶‾᷄ ⁻̫ ‾᷅˵)");
+            if (confirmDelete) {
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * @see #jump
+         * 跳转函数,通过 page 和 Vue 对象进行跳转
+         * */
+        function jump(page, vue) {
+            if ('first' === page && !vue.pagination.first)
+                vue.list(0);
+
+            else if ('pre' === page && vue.pagination.hasPrevious)
+                vue.list(vue.pagination.number - 1);
+
+            else if ('next' === page && vue.pagination.hasNext)
+                vue.list(vue.pagination.number + 1);
+
+            else if ('last' === page && !vue.pagination.last)
+                vue.list(vue.pagination.totalPages - 1);
+        }
+
+        /**
+         * @see #jumpByNumber
+         * 跳转函数,跳转到页面通过num,和 Vue对象
+         * */
+        function jumpByNumber(start, vue) {
+            if (start !== vue.pagination.number)
+                vue.list(start);
+        }
+    </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title th:text="${title}"></title>
+</template>

@@ -1,0 +1,23 @@
+<!--suppress ALL-->
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 有关前端购物车页面             ===
+===             TODO : 2021/4/6                      ===
+=======================================================
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/fore/header::html('╭（′▽‵）╯ 购物车')">
+</head>
+<div id="workingArea">
+    <div th:replace="include/fore/top::html"></div>
+    <div th:replace="include/fore/simpleSearch::html"></div>
+    <div th:replace="include/fore/cart/cartPage::html"></div>
+    <div th:replace="include/fore/modelDeleteConfirm::html"></div>
+    <div th:replace="include/fore/footer::html"></div>
+</div>
+<body>
+</body>
+</html>

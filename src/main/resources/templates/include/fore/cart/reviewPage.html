@@ -1,0 +1,125 @@
+<!--suppress HtmlRequiredAltAttribute, HtmlDeprecatedAttribute, HtmlFormInputWithoutLabel, CheckEmptyScriptTag -->
+<div th:fragment="html">
+    <!--suppress JSUnusedLocalSymbols -->
+    <script>
+        $ (function () {
+            let oid = getUrlParams ("oid");
+            let data4Vue = {
+                uri: 'foreReview',
+                orderList: [],
+                product: '',
+                order: null,
+                reviewList: [],
+                showReviews: false,
+                content: ''
+            };
+            // noinspection JSUnusedGlobalSymbols
+            let vue = new Vue ({
+                el: '#workingArea',
+                data: data4Vue,
+                // 绑定Vue成功
+                mounted: function () {
+                    this.load ();
+                },
+                methods: {
+                    load: function () {
+                        let url = this.uri + "?oid=" + oid;
+                        axios.get (url).then (function (response) {
+                            let result = response.data;
+                            vue.product = result.data.product;
+                            vue.order = result.data.order;
+                            vue.reviewList = result.data.reviewList;
+                            // 先进行渲染...
+                            vue.$nextTick (function () {
+                                linkDefaultActions ();
+                            });
+                        });
+                    },
+                    // 用户做完评论,则展示相关的评论
+                    doReview: function () {
+                        let url = "foreDoReview?oid=" + vue.order.id + "&pid=" + vue.product.id + "&content=" + vue.content;
+                        axios.post (url).then (function (response) {
+                            let result = response.data;
+                            vue.showReviews = true;
+                            vue.load ();
+                        });
+                    }
+                }
+            })
+        })
+    </script>
+    <div class="reviewDiv">
+        <div class="reviewProductInfoDiv">
+            <div class="reviewProductInfoImg"><img v-if="null != product.firstProductImage" width="400px" height="400px"
+                                                   :src="'img/productSingle/' + product.firstProductImage.id + '.jpg'"
+            ></div>
+            <div class="reviewProductInfoRightDiv">
+                <div class="reviewProductInfoRightText">
+                    {{ product.name }}
+                </div>
+                <table class="reviewProductInfoTable">
+                    <tr>
+                        <td width="70px">商品价格:</td>
+                        <!--  原价设置让用户有一种占便宜的感觉 -->
+                        <td><span
+                                class="reviewProductInfoTablePrice">¥ {{product.originalPrice | formatMoneyFilter }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>运费:</td>
+                        <td>¥ 0:00(不含运费哦)</td>
+                    </tr>
+                    <tr>
+                        <td>月销量:</td>
+                        <td><span class="reviewProductInfoTableSellNumber">
+                            {{ product.saleCount }}
+                        </span></td>
+                    </tr>
+                </table>
+                <div class="reviewProductInfoRightBelowDiv">
+                    <span class="reviewProductInfoRightBelowImg">
+                        <img1 src="img/site/reviewLight.png"/>
+                    </span>
+                    <span v-if="null != order" class="reviewProductInfoRightBelowText">
+                        现在查看的是您所购买的商品信息于 {{order.createDate | formatDateFilter('YYYY-MM-DD') }}
+                        下单购买此产品....
+                    </span>
+                </div>
+            </div>
+            <div style="clear: both"></div>
+        </div>
+        <div class="reviewStasticsDiv">
+            <div class="reviewStasticsLeft">
+                <div class="reviewStasticsLeftTop"></div>
+                <div class="reviewStasticsLeftContent">累计评论<span
+                        class="reviewStasticsNumber">{{product.reviewCount}}</span></div>
+                <div class="reviewStasticsFoot"></div>
+            </div>
+            <div class="reviewStasticsRight">
+                <div class="reviewStasticsRightEmpty"></div>
+                <div class="reviewStasticsFoot"></div>
+            </div>
+        </div>
+        <div v-show="showReviews" class="reviewDivlistReviews">
+            <div v-for="review in reviewList" class="reviewDivlistReviewsEach">
+                <div class="reviewDate">{{review.createDate | formatDateFilter}}</div>
+                <div class="reviewContent">{{review.content}}</div>
+                <div class="reviewUserInfo pull-right">
+                    {{review.user.anonymousName}}<span class="reviewUserInfoAnonymous">(匿名)</span>
+                </div>
+            </div>
+        </div>
+        <div v-show="!showReviews" class="makeReviewDiv">
+            <div class="makeReviewText">其他买家需要你的意见哦!</div>
+            <table class="makeReviewTable">
+                <tr>
+                    <td class="makeReviewTableFirstTD">评价商品</td>
+                    <td><textarea v-model="content"></textarea></td>
+                </tr>
+            </table>
+            <div class="makeReviewButtonDiv">
+                <button @click="doReview" type="submit">提交评价</button>
+            </div>
+        </div>
+    </div>
+</div>

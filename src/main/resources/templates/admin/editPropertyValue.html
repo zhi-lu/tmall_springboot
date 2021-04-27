@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 编辑属性值页面                ===
+===             TODO : 2021/3/21                    ===
+=======================================================
+-->
+<!-- 顶不住了,坚持坚持。 -->
+<head th:include="include/admin/adminHeader::html('(*´▽`*)❀产品属性管理')"></head>
+<body>
+<div th:replace="include/admin/adminNavigator::html"></div>
+<script>
+    $(function () {
+        let pid = getUrlParams("pid")
+        let data4Vue = {
+            uri: 'propertyValues',
+            beans: [],
+            category: '',
+            product: ''
+        }
+        // ViewModel
+        let vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted: function () {
+                this.getProduct(pid);
+                this.list();
+            },
+            methods: {
+                getProduct: function (pid) {
+                    let url = "products/" + pid;
+                    axios.get(url).then(function (response) {
+                        vue.product = response.data;
+                        vue.category = vue.product.category;
+                    })
+                },
+                list: function () {
+                    let url = "products/" + pid + "/" + this.uri;
+                    axios.get(url).then(function (response) {
+                        vue.beans = response.data;
+                    })
+                },
+                update: function (bean) {
+                    let url = this.uri;
+                    let id = bean.id;
+                    $('#pvid' + bean.id).css("border", "2px solid pink");
+                    axios.put(url, bean).then(function (response) {
+                        if (bean.id == response.bean.id) {
+                            $('#pvid' + bean.id).css("border", "2px solid lightcoral")
+                        } else {
+                            $('#pvid' + bean.id).css("border", "2px solid red")
+                        }
+                    })
+                }
+            }
+        })
+    })
+</script>
+<div id="workingArea">
+    <ol class="breadcrumb">
+        <li><a href="admin_category_list">所有分类</a></li>
+        <li><a :href="'admin_product_list?cid='+category.id">{{category.name}}</a></li>
+        <li class="active">{{product.name}}</li>
+        <li class="active">产品图片管理</li>
+    </ol>
+
+    <div class="editPVDiv">
+        <div v-for="bean in beans" class="eachPV">
+            <span class="pvName">{{bean.name}}</span>
+            <span class="pvValue"><label>
+                <input class="pvValue" :id="'pvid'+bean.id" v-model="bean.value">
+                <span @click="update(bean)" class="btn btn-success">确定</span>
+            </label></span>
+        </div>
+        <div style="clear:both"></div>
+    </div>
+</div>
+<div th:replace="include/admin/adminFooter::html"></div>
+</body>
+</html>

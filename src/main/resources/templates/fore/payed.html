@@ -1,0 +1,22 @@
+<!--suppress ALL-->
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 有关前端支付成功页面           ===
+===             TODO : 2021/3/21                    ===
+=======================================================
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/fore/header::html('（ ^）o（^ ）支付成功界面')">
+</head>
+<body>
+<div id="workingArea">
+    <div th:replace="include/fore/top::html"></div>
+    <div th:replace="include/fore/simpleSearch::html"></div>
+    <div th:replace="include/fore/cart/payedPage::html"></div>
+    <div th:replace="include/fore/footer::html"></div>
+</div>
+</body>
+</html>

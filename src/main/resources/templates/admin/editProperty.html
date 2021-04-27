@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 编辑属性页面                  ===
+===             TODO : 2021/3/21                    ===
+=======================================================
+-->
+<head th:include="include/admin/adminHeader::html('(*´▽`*)❀编辑属性')"></head>
+
+<body>
+<div th:replace="include/admin/adminNavigator::html"></div>
+<script>
+    $(function () {
+        let data4Vue = {
+            uri: 'properties',
+            listURL: 'admin_property_list',
+            bean: '',
+            category: ''
+        };
+        // ViewModel
+        let vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+
+            mounted: function () {
+                // 绑定加载成功
+                this.get();
+            },
+            methods: {
+                get: function () {
+                    // 获取分类对象和下面的属性..
+                    let id = getUrlParams("id");
+                    let url = this.uri + "/" + id;
+                    axios.get(url).then(function (response) {
+                        vue.bean = response.data;
+                        vue.category = vue.bean.category;
+                    });
+                },
+                update: function () {
+                    if (!checkEmpty(this.bean.name, "属性名称")) {
+                        return;
+                    }
+                    let url = this.uri;
+                    // 更新完成跳转到属性界面
+                    axios.put(url, vue.bean).then(function () {
+                        location.href = vue.listURL + "?cid=" + vue.category.id;
+                    })
+                },
+            },
+        })
+    })
+</script>
+
+<div id="workingArea">
+
+    <ol class="breadcrumb">
+        <li><a href="admin_category_list">所有分类</a></li>
+        <li><a :href="'admin_property_list?cid='+category.id">{{category.name}}</a></li>
+        <li class="active">属性管理</li>
+    </ol>
+
+
+    <div class="panel panel-warning editDiv">
+        <div class="panel-heading">编辑属性</div>
+        <div class="panel-body">
+            <table class="editTable">
+                <tr>
+                    <td>属性名称</td>
+                    <td><input @keyup.enter="update" v-model.trim="bean.name" type="text" class="form-control"></td>
+                </tr>
+                <tr class="submitTR">
+                    <td colspan="2" align="center">
+                        <input type="hidden" name="id" v-model.trim="bean.id">
+                        <a href="#nowhere" id="summit_" class="btn btn-success" @click="update">提 交</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#summit_').click(function () {
+            window.alert("(❁´◡`❁)*✲ﾟ*, 提交啦!")
+        })
+    })
+</script>
+<div th:replace="include/admin/adminFooter::html"></div>
+</body>
+</html>
+
+
+
+
+

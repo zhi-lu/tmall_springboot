@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 编辑产品页面                  ===
+===             TODO : 2021/3/21                    ===
+=======================================================
+-->
+<head th:include="include/admin/adminHeader::html('(*´▽`*)❀编辑分类')"></head>
+<body>
+<div th:replace="include/admin/adminNavigator::html"></div>
+<script>
+    $(function () {
+        let data4Vue = {
+            uri: 'products',
+            listURL: 'admin_product_list',
+            bean: '',
+            category: ''
+        };
+        let vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+
+            mounted: function () {
+                // 绑定成功
+                this.get();
+            },
+            methods: {
+                get: function () {
+                    let id = getUrlParams("id");
+                    let url = this.uri + "/" + id;
+                    axios.get(url).then(function (response) {
+                        vue.bean = response.data;
+                        vue.category = vue.bean.category;
+                    });
+                },
+                update: function () {
+                    if (!checkEmpty(this.bean.name, "产品名称")) {
+                        return;
+                    }
+                    if (!checkEmpty(this.bean.subTitle, "小标题")) {
+                        return;
+                    }
+                    if (!checkEmpty(this.bean.originalPrice, "原始价格")) {
+                        return;
+                    }
+                    if (!checkEmpty(this.bean.promotePrice, "打折价格")) {
+                        return;
+                    }
+                    if (!checkEmpty(this.bean.stock, "库存")) {
+                        return;
+                    }
+                    let url = this.uri;
+                    // 更新完成跳转到 相对应product界面
+                    axios.put(url, vue.bean).then(function (response) {
+                        location.href = vue.listURL + "?cid=" + vue.category.id;
+                    });
+                }
+            }
+        })
+    })
+</script>
+<div id="workingArea">
+    <ol class="breadcrumb">
+        <li><a href="admin_category_list">所有分类</a></li>
+        <li><a :href="'admin_product_list?cid='+category.id">{{category.name}}</a></li>
+        <li class="active">产品管理</li>
+    </ol>
+    <div class="panel panel-warning addDiv">
+        <div class="panel-heading">编辑产品</div>
+        <div class="panel-body">
+            <table class="editTable">
+                <tr>
+                    <td>产品名称</td>
+                    <td><label>
+                        <input @keyup.enter="update" v-model.trim="bean.name" type="text" class="form-control">
+                    </label></td>
+                </tr>
+                <tr>
+                    <td>产品小标题</td>
+                    <td><label>
+                        <input @keyup.enter="update" v-model.trim="bean.subTitle" type="text" class="form-control">
+                    </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>原始价格</td>
+                    <td><label>
+                        <input @keyup.enter="uodate" v-model.trim="bean.originalPrice" type="text" class="form-control">
+                    </label></td>
+                </tr>
+                <tr>
+                    <td>打折价格</td>
+                    <td><label>
+                        <input @keyup.enter="update" v-model.trim="bean.promotePrice" type="text" class="form-control">
+                    </label></td>
+                </tr>
+                <tr>
+                    <td>库存</td>
+                    <td><label>
+                        <input @keyup.enter="update" v-model.trim="bean.stock" type="text" class="form-control">
+                    </label>
+                    </td>
+                </tr>
+                <tr class="submitTR">
+                    <td colspan="2" align="center">
+                        <input type="hidden" name="id" v-model.trim="bean.id">
+                        <!--suppress HtmlUnknownAnchorTarget -->
+                        <a href="#nowhere" id="summit_" @click="update" class="btn btn-success">提交</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#summit_').click(function () {
+            window.alert("(⑅˘͈ ᵕ ˘͈ )--提交啦!")
+        })
+    })
+</script>
+</body>
+</html>

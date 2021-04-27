@@ -1,0 +1,20 @@
+<!--suppress ALL-->
+<div class th:fragment="html">
+    <a th:href="${application.contextPath}">
+        <img id="logo" src="img/site/logo.gif" class="logo">
+    </a>
+    <form action="search" method="get" >
+        <div class="searchDiv">
+            <input name="keyword" type="text" placeholder="平板车 太阳镜 女装">
+            <button  type="submit" class="searchButton">搜索</button>
+            <div class="searchBelow">
+                <!-- c 和 status 是 application.categories_below_search属性              -->
+				<span th:each="c,status: ${application.categories_below_search}" th:if="${status.index>=5 && status.index<=8}">
+					<a th:href="@{'category?cid='+${c.id}}" th:text="${c.name}" ></a>
+					<span th:if="${status.index!=8}">|</span>
+	            </span>
+
+            </div>
+        </div>
+    </form>
+</div>

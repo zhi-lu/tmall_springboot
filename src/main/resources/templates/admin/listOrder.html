@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org">
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 有关订单页面                  ===
+===             TODO : 2021/3/21                    ===
+=======================================================
+-->
+<head th:include="include/admin/adminHeader::html('╮（╯▽╰）╭-订单管理')"></head>
+<body>
+<div th:replace="include/admin/adminNavigator::html"></div>
+<script>
+    $(function () {
+
+        let data4Vue = {
+            uri: 'orders',
+            beans: [],
+            pagination: {}
+        }
+        // ViewModel
+        let vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted: function () {
+                this.list(0)
+            },
+            methods: {
+                list: function (start) {
+                    let url = this.uri + "?start=" + start;
+                    axios.get(url).then(function (response) {
+                        vue.pagination = response.data;
+                        vue.beans = response.data.content;
+                    })
+                },
+                showOrderItems: function (order) {
+                    let id = order.id;
+                    $('#orderItemsTR' + id).show()
+                },
+                jump: function (page) {
+                    jump(page, vue);
+                },
+                jumpByNumber: function (start) {
+                    jumpByNumber(start, vue);
+                },
+                deliveryOrder: function (order, e) {
+                    let url = "deliveryOrder/" + order.id;
+                    axios.put(url).then(function (response) {
+                        $(e.target).hide();
+                    })
+                }
+            }
+        });
+        // 对时间的格式化使用
+        Vue.filter('formDateFilter', function (value, formatString) {
+            // 如果对象为空
+            if (value == null) {
+                return "";
+            }
+            formatString = formatString || 'YYYY-MM-DD HH:mm:ss';
+            return moment(value).format(formatString);
+        })
+    })
+</script>
+<div id="workingArea">
+    <h1 class="label label-info">订单管理</h1>
+    <br/>
+    <br/>
+    <div class="listDataTableDiv">
+        <table class="table table-striped table-bordered table-hover  table-condensed">
+            <thead>
+            <tr class="success">
+                <th>状态</th>
+                <th>金额</th>
+                <td width="100px">商品数量</td>
+                <td width="100px">买家名称</td>
+                <td>创建时间</td>
+                <td>支付时间</td>
+                <td>发货时间</td>
+                <td>确认收货时间</td>
+                <td width="120px">操作</td>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- 在业务上需要一个订单数据产生两行 tr, 此时就不能在 tr上进行 v-for, 而需要用 template 标签 -->
+            <template v-for="bean in beans">
+                <tr>
+                    <td style="color: hotpink">{{bean.statusDesc}}</td>
+                    <td style="color: pink">
+                        {{bean.totalPrice}}
+                    </td>
+                    <td style="color: lightcoral">{{bean.totalNumber}}</td>
+                    <td>{{bean.user.name}}</td>
+                    <td>{{bean.createDate | formDateFilter }}</td>
+                    <td>{{bean.payDate | formDateFilter}}</td>
+                    <td>{{bean.deliveryDate | formDateFilter}}</td>
+                    <td>{{bean.confirmDate | formDateFilter}}</td>
+                    <td>
+                        <button @click="showOrderItems(bean)"
+                                class="orderPageCheckOrderItems btn btn-primary btn-xs">
+                            查看详情
+                        </button>
+                        <!--  oh my fuck you bitch mother, vue compare is "==" not  "=" 赋值 -->
+                        <button v-if="bean.status=='waitDelivery'" @click="deliveryOrder(bean, $event)"
+                                class="btn btn-primary btn-xs">
+                            发货
+                        </button>
+                    </td>
+                </tr>
+                <tr class="orderPageOrderItemTR" :id="'orderItemsTR'+bean.id">
+                    <td colspan="10" align="center">
+                        <div class="orderPageOrderItem">
+                            <table width="800px" align="center" class="orderListItemTable">
+                                <tr v-for="orderItem in bean.orderItemList">
+                                    <td align="left">
+                                        <!--suppress HtmlRequiredAltAttribute -->
+                                        <img width="40px" height="40px"
+                                             :src="'img/productSingle/' + orderItem.product.firstProductImage.id + '.jpg'">
+                                    </td>
+                                    <td>
+                                        <a :href="'product?pid=' + orderItem.product.id">
+                                            <span>{{orderItem.product.name}}</span>
+                                        </a>
+                                    </td>
+                                    <td align="right">
+                                        <span class="text-muted">{{orderItem.number}}个</span>
+                                    </td>
+                                    <td align="right">
+                                        <span class="text-muted">单价¥:{{orderItem.product.promotePrice}}</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="include/admin/adminPage::html"></div>
+</div>
+
+<div th:replace="include/admin/adminFooter::html"></div>
+</body>
+</html>

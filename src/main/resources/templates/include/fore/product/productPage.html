@@ -1,0 +1,65 @@
+<!--suppress ALL-->
+<div th:fragment="html">
+    <script>
+        $(function(){
+            let pid = getUrlParams("pid");
+            let data4Vue = {
+                uri:'foreProduct',
+                product :'',
+                category:null,
+                firstProductImage:null,
+                propertyValueList:[],
+                reviewList:[],
+                showDetail:true,
+                showReview:false,
+                user:{name:'', password:''}
+            };
+            //ViewModel
+            let vue = new Vue({
+                el: '#workingArea',
+                data: data4Vue,
+                mounted:function(){
+                    //mounted　表示这个 Vue 对象加载成功了
+                    linkDefaultActions();
+                    this.load();
+                },
+                methods: {
+                    load:function(){
+                        let url =  this.uri+"/"+pid;
+                        axios.get(url).then(function(response) {
+                            let result = response.data;
+                            vue.product=result.data.product;
+                            vue.propertyValueList=result.data.propertyValueList;
+                            vue.reviewList=result.data.reviewList;
+
+                            vue.category = vue.product.category;
+                            vue.firstProductImage = vue.product.firstProductImage;
+                            vue.$nextTick(function(){
+                                imgAndInfoPageRegisterListeners(vue);
+                            })
+                        });
+
+                    },
+                    toggleDetail:function(){
+                        this.showDetail=true;
+                        this.showReview=false;
+                    },
+                    toggleReview:function(){
+                        this.showDetail=false;
+                        this.showReview=true;
+                    }
+                }
+            });
+
+        });
+    </script>
+
+    <div class="categoryPictureInProductPageDiv">
+        <img v-if="category!=null" class="categoryPictureInProductPage" :src="'img/category/'+category.id+'.jpg'">
+    </div>
+    <div class="productPageDiv">
+        <div th:replace="include/fore/product/imgAndInfo::html"></div>
+        <div th:replace="include/fore/product/productDatail::html"></div>
+        <div th:replace="include/fore/product/productReview::html"></div>
+    </div>
+</div>

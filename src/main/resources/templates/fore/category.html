@@ -1,0 +1,21 @@
+<!--suppress ALL-->
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 有关前端属性页面               ===
+===             TODO : 2021/4/6                      ===
+=======================================================
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/fore/header::html('天猫属性（￣ˇ￣）')"></head>
+<body>
+<div id="workingArea">
+    <div th:replace="include/fore/top::html"></div>
+    <div th:replace="include/fore/search::html"></div>
+    <div th:replace="include/fore/category/categoryPage::html"></div>
+    <div th:replace="include/fore/footer::html"></div>
+</div>
+</body>
+</html>

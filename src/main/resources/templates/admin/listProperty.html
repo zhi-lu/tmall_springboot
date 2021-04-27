@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org">
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 有关属性页面                  ===
+===             TODO : 2021/3/21                    ===
+=======================================================
+-->
+<head th:include="include/admin/adminHeader::html('(๑╹ヮ╹๑)ﾉ-属性管理')"></head>
+<body>
+<div th:replace="include/admin/adminNavigator::html" ></div>
+<script>
+    $(function(){
+        // 通过getUrlParams("cid")获取 Category id
+        let cid = getUrlParams('cid');
+        let data4Vue = {
+            uri: 'properties',
+            beans: [],
+            bean: {id: 0, name: '', category: {id: 0}},
+            pagination: {},
+            category: ''
+        };
+
+        //ViewModel
+        let vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted:function(){
+                //mounted　表示这个 Vue 对象加载成功了
+                this.getCategory(cid);
+                this.list(0);
+            },
+            methods: {
+                getCategory: function (cid) {
+                    // 获取相关的url地址
+                    let url = "categories/" + cid;
+                    // 通过axios 将有关Category json data 传给 vue.category;
+                    axios.get(url).then(function (response) {
+                        vue.category = response.data;
+                    })
+                },
+                // 遍历数据,我套你个🐒,就是写CRUD.
+                list:function (start) {
+                    // 获取操作地址
+                    let url = "categories/" + cid + "/" + this.uri + "?start=" + start;
+                    axios.get(url).then(function (response) {
+                        // 通过axios 获取首页的属性的数据..
+                        vue.pagination = response.data;
+                        vue.beans = response.data.content;
+                    })
+                },
+                // 添加对象...................
+                add: function () {
+                    if (!checkEmpty(this.bean.name, "属性名称")) {
+                        return;
+                    }
+                    let url = this.uri;
+                    this.bean.category.id = cid;
+                    axios.post(url, this.bean).then(function (response) {
+                        vue.list(0);
+                        vue.beans = {id: 0, name: '', category: {id: 0}};
+                    })
+                },
+                deleteBean: function (id) {
+                    // 看看这个该死的删除连接是不是为空
+                    if (!checkDeleteLink()) {
+                        return;
+                    }
+                    let url = this.uri + "/" + id;
+                    axios.delete(url).then(function (response) {
+                        // 根据REST规范
+                        if (0 !== response.data.length) {
+                            window.alert(response.data);
+                        } else {
+                            // 返回首页面。。
+                            vue.list(0)
+                        }
+                    })
+                },
+                // 跳转
+                jump: function (page) {
+                    jump(page, vue);
+                },
+                jumpByNumber: function (start) {
+                    jumpByNumber(start, vue);
+                },
+            }
+        });
+    });
+</script>
+
+<div id="workingArea" >
+    <ol class="breadcrumb">
+        <li><a href="admin_category_list">所有分类</a></li>
+        <li><a :href="'admin_property_list?cid='+category.id">{{category.name}}</a></li>
+        <li class="active">属性管理</li>
+    </ol>
+
+    <div class="listDataTableDiv">
+        <table class="table table-striped table-bordered table-hover  table-condensed">
+            <thead>
+            <tr class="success">
+                <th>ID</th>
+                <th>属性名称</th>
+                <th>编辑</th>
+                <th>删除</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="bean in beans ">
+                <td>{{bean.id}}</td>
+                <td>
+                    {{bean.name}}
+                </td>
+                <td>
+                    <a :href="'admin_property_edit?id=' + bean.id "><span class="glyphicon glyphicon-edit"></span></a>
+                </td>
+                <td>
+                    <a href="#nowhere"  @click="deleteBean(bean.id)"><span class="   glyphicon glyphicon-trash"></span></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="include/admin/adminPage::html" ></div>
+
+    <div class="panel panel-warning addDiv">
+        <div class="panel-heading">新增属性</div>
+        <div class="panel-body">
+            <table class="addTable">
+                <tr>
+                    <td>属性名称</td>
+                    <td><input  @keyup.enter="add"  v-model.trim="bean.name" type="text" class="form-control"></td>
+                </tr>
+                <tr class="submitTR">
+                    <td colspan="2" align="center">
+                        <a href="#nowhere" id="summit_" @click="add" class="btn btn-success">提交</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#summit_').click(function () {
+            window.alert("(❁´◡`❁)*✲ﾟ*, 提交啦!")
+        })
+    })
+</script>
+<div th:replace="include/admin/adminFooter::html" ></div>
+</body>
+</html>

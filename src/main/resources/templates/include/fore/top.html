@@ -1,0 +1,28 @@
+<!--suppress ALL -->
+<nav class="top" th:fragment="html">
+	<!-- 设置拦截器  -->
+	<a th:href="${application.contextPath}">
+        <span style="color: #c40000;margin: 0px" class="glyphicon glyphicon-home redColor">
+            天猫首页
+        </span>
+	</a>
+	<span>喵 ≧０≦, 欢迎来到天猫.</span>
+	<!--  servelt 知识通过session会话获取信息  -->
+	<span th:if="${null!=session.user}">
+        <a href="login" th:text="${session.user.name}"></a>
+		<!-- 注意在 foreRestController 相关的Rest Mapping 命名一切使用驼峰法 -->
+        <a href="foreLogout">退出登录（＞﹏＜）</a>
+    </span>
+	<span th:if="${null==session.user}">
+        <a href="login">登录（￣︶￣）↗</a>
+        <a href="register">请注册╰（￣▽￣）╭</a>
+    </span>
+	<span class="pull-right">
+        <a href="bought">我的订单</a>
+        <a href="cart">
+            <span style="color: #c7254e; margin: 0px" class="glyphicon glyphicon-shopping-cart redColor">
+                购物车<strong th:text="${session.cartTotalItemNumber}"></strong>件
+            </span>
+        </a>
+    </span>
+</nav>

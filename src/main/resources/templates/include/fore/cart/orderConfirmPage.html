@@ -1,0 +1,32 @@
+<div th:fragment="html">
+    <script>
+        $ (function () {
+            let oid = getUrlParams ("oid");
+            let data4Vue = {
+                uri: 'foreOrderConfirmed',
+            };
+            let vue = new Vue ({
+                el: '#workingArea',
+                data: data4Vue,
+                // 加载Vue成功
+                mounted: function () {
+                    this.load ();
+                },
+                methods: {
+                    load: function () {
+                        let url = this.uri + "?oid=" + oid;
+                        // 只做get请求
+                        axios.get(url);
+                    }
+                }
+            });
+        })
+    </script>
+    <div class="orderFinishDiv">
+        <div class="orderFinishTextDiv">
+            <!--suppress HtmlRequiredAltAttribute -->
+            <img src="img/site/orderFinish.png">
+            <span style="color: pink">确认收货,卖家将会收到你的货款呀----＼（￣︶￣）／　＜（＠￣︶￣＠）＞</span>
+        </div>
+    </div>
+</div>

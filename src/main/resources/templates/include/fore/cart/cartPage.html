@@ -1,0 +1,307 @@
+<!--
+对从后端获取对数据进行渲染
+-->
+
+<!--suppress HtmlRequiredAltAttribute, HtmlUnknownAnchorTarget -->
+<div th:fragment="html">
+    <!--suppress JSCheckFunctionSignatures, JSJQueryEfficiency, JSUnresolvedFunction, JSFunctionExpressionToArrowFunction, JSUnusedLocalSymbols -->
+    <script>
+        $ (function () {
+            let data4Vue = {
+                uri: 'foreCart',
+                orderItemList: []
+            };
+            //ViewModel
+            let vue = new Vue ({
+                el: '#workingArea',
+                data: data4Vue,
+                // 绑定Vue成功
+                mounted: function () {
+                    this.load ();
+                },
+                methods: {
+                    load: function () {
+                        let url = this.uri;
+                        axios.get (url).then (function (response) {
+                            vue.orderItemList = response.data;
+                            // 先进行渲染
+                            vue.$nextTick (function () {
+                                linkDefaultActions ();
+                                cartPageRegisterListeners ();
+                            })
+                        })
+                    }
+                }
+            });
+        })
+        let deleteOrderItem = false;
+        let deleteOrderItemId = 0;
+
+        function cartPageRegisterListeners() {
+            // 响应相关删除事件...
+            $ ('a.deleteOrderItem').click (function () {
+                deleteOrderItem = false;
+                deleteOrderItemId = $ (this).attr ('oiid');
+                // 确认删除界面
+                $ ('#deleteConfirmModal').modal ('show');
+
+            });
+            // 删除订单
+            $ ('button.deleteConfirmButton').click (function () {
+                deleteOrderItem = true;
+                $ ('#deleteConfirmModal').modal ('hide');
+            });
+            $ ('#deleteConfirmModal').on ('hidden.bs.modal', function (e) {
+                // 如果确认删除,则删除关于订单对产品....
+                if (deleteOrderItem) {
+                    let url = "foreDeleteOrderItem?oiid=" + deleteOrderItemId;
+                    axios.get (url).then (function (response) {
+                        if (0 === response.data.code) {
+                            $ ("tr.cartProductItemTR[oiid=" + deleteOrderItemId + "]").hide ();
+                        } else {
+                            location.href = 'login';
+                        }
+                    });
+                }
+            });
+            // 勾选产品
+            $ ('img.cartProductItemIfSelected').click (function () {
+                let selectIt = $ (this).attr ("selectIt");
+                if ("selectIt" === selectIt) {
+                    $ (this).attr ("src", "img/site/cartNotSelected.png");
+                    $ (this).attr ("selectIt", "false");
+                    $ (this).parents ("tr.cartProductItemTR").css ("background-color", "#fff")
+                } else {
+                    $ (this).attr ("src", "img/site/cartSelected.png");
+                    $ (this).attr ("selectIt", "selectIt");
+                    $ (this).parents ("tr.cartProductItemTR").css ("background-color", "#FFF8E1");
+                }
+                syncSelect ();
+                syncCreateOrderButton ();
+                calcCartSumPriceAndNumber ();
+            });
+            $ ('img.selectAllItem').click (function () {
+                let selectIt = $ (this).attr ("selectIt");
+                if ("selectIt" === selectIt) {
+                    $ ("img.selectAllItem").attr ("src", "img/site/cartNotSelected.png");
+                    $ ("img.selectAllItem").attr ("selectIt", "false");
+                    $ (".cartProductItemIfSelected").each (function () {
+                        $ (this).attr ("src", "img/site/cartNotSelected.png");
+                        $ (this).attr ("selectIt", "selectIt");
+                        $ (this).parents ("tr.cartProductItemTR").css ("background-color", "#fff");
+                    })
+                } else {
+                    $ ("img.selectAllItem").attr ("src", "img/site/cartSelected.png");
+                    $ ("img.selectAllItem").attr ("selectIt", "selectIt");
+                    $ (".cartProductItemIfSelected").each (function () {
+                        $ (this).attr ("src", "img/site/cartSelected.png");
+                        $ (this).attr ("selectIt", "selectIt");
+                        $ (this).parents ("tr.cartProductItemTR").css ("background-color", "#FFF8E1");
+                    })
+                }
+                syncCreateOrderButton ();
+                calcCartSumPriceAndNumber ();
+            });
+            $ (".orderItemNumberSetting").keyup (function () {
+                let pid = $ (this).attr ("pid");
+                let stock = $ ("span.orderItemStock[pid=" + pid + "]").text ();
+                let price = $ ("span.orderItemPromotePrice[pid= " + pid + "]").text ();
+                let num = $ (".orderItemNumberSetting[pid=" + pid + "]").val ();
+                num = parseInt (num);
+                if (isNaN (num)) {
+                    num = 1;
+                }
+                if (num < 1) {
+                    num = 1;
+                }
+                if (num > stock) {
+                    num = stock;
+                }
+                syncPrice (pid, num, price);
+            });
+            $ (".numberPlus").click (function () {
+                let pid = $ (this).attr ("pid");
+                let stock = $ ("span.orderItemStock[pid=" + pid + "]").text ();
+                let price = $ ("span.orderItemPromotePrice[pid= " + pid + "]").text ();
+                let num = $ (".orderItemNumberSetting[pid= " + pid + "]").val ();
+                num++;
+                if (num > stock) {
+                    num = stock;
+                }
+                syncPrice (pid, num, price);
+            });
+            $ (".numberMinus").click (function () {
+                let pid = $ (this).attr ("pid");
+                // let stock = $ ("span.orderItemStock[pid=" + pid + "]").text ();
+                let price = $ ("span.orderItemPromotePrice[pid=" + pid + "]").text ();
+                let num = $ (".orderItemNumberSetting[pid=" + pid + "]").val ();
+                --num;
+                if (num < 1) {
+                    num = 1;
+                }
+                syncPrice (pid, num, price);
+            });
+            $ ("button.createOrderButton").click (function () {
+                let params = "";
+                $ (".cartProductItemIfSelected").each (function () {
+                    // 跳转到支付页面
+                    if ("selectIt" === $ (this).attr ("selectIt")) {
+                        let oiid = $ (this).attr ("oiid");
+                        params += "&oiid=" + oiid;
+                    }
+                });
+                params = params.substring (1);
+                location.href = "buy?" + params;
+            });
+        }
+
+        function syncSelect() {
+            let selectAll = true;
+            $ (".cartProductItemIfSelected").each (function () {
+                if ("false" === $ (this).attr ("selectIt")) {
+                    selectAll = false;
+                }
+            });
+            if (selectAll) {
+                $ ('img.selectAllItem').attr ("src", "img/site/cartSelected.png")
+            } else {
+                $ ('img.selectAllItem').attr ("src", "img/site/cartNotSelected.png");
+            }
+        }
+
+        function syncCreateOrderButton() {
+            let selectAny = false;
+            $ (".cartProductItemIfSelected").each (function () {
+                if ("selectIt" === $ (this).attr ("selectIt")) {
+                    selectAny = true;
+                }
+            });
+            if (selectAny) {
+                $ ('button.createOrderButton').css ("background-color", "#C40000")
+                $ ('button.createOrderButton').removeAttr ("disabled");
+            } else {
+                $ ('button.createOrderButton').css ("background-color", "#AAAAAA");
+                $ ("button.createOrderButton").attr ("disabled", "disabled");
+            }
+        }
+
+        function calcCartSumPriceAndNumber() {
+            let sum = 0;
+            let totalNumber = 0;
+            $ ("img.cartProductItemIfSelected[selectIt='selectIt']").each (function () {
+                let oiid = $ (this).attr ("oiid");
+                let price = $ (".cartProductItemSmallSumPrice[oiid=" + oiid + "]").text ();
+                price = price.replace (/,/g, "");
+                price = price.replace (/¥/g, "");
+                sum += Number (price);
+                let num = $ (".orderItemNumberSetting[oiid= " + oiid + "]").val ();
+                totalNumber += Number (num);
+            });
+            $ ("span.cartSumPrice").html ("¥" + formatMoney (sum));
+            $ ("span.cartTitlePrice").html ("¥" + formatMoney (sum));
+            $ ("span.cartSumNumber").html (totalNumber);
+        }
+
+        function syncPrice(pid, num, price) {
+            $ (".orderItemNumberSetting[pid=" + pid + "]").val (num);
+            let cartProductItemSmallSumPrice = formatMoney (num * price);
+            $ (".cartProductItemSmallSumPrice[pid=" + pid + "]").html ("¥" + cartProductItemSmallSumPrice);
+            calcCartSumPriceAndNumber ();
+            let url = "foreChangeOrderItem?pid=" + pid + "&num=" + num;
+            // 即使修改订单中的购买商品的数目。。。。。。。。。
+            axios.get (url).then (function (response) {
+                if (0 !== response.data.code) {
+                    location.href = "login";
+                }
+            })
+        }
+    </script>
+    <div class="cartDiv">
+        <div class="cartTitle pull-right">
+            <span>已选商品(免邮费)</span>
+            <span class="cartTitlePrice">¥0.00</span>
+            <button class="createOrderButton" disabled="disabled">结算</button>
+        </div>
+        <div class="cartProductList">
+            <table class="cartProductTable">
+                <thead>
+                <tr>
+                    <th class="selectAndImage">
+                        <img selectIt="false" class="selectAllItem" src="img/site/cartNotSelected.png"/>全选
+                    </th>
+                    <th>商品信息</th>
+                    <th>单价</th>
+                    <th>数量</th>
+                    <!--suppress HtmlDeprecatedAttribute -->
+                    <th width="120px">金额</th>
+                    <th class="operation">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr :oiid="orderItem.id" class="cartProductItemTR" v-for="orderItem in orderItemList">
+                    <td>
+                        <img selectIt="false" :oiid="orderItem.id" class="cartProductItemIfSelected"
+                             src="img/site/cartNotSelected.png">
+                        <!--suppress HtmlUnknownAnchorTarget -->
+                        <a style="display: none" href="#nowhere"><img src="img/site/cartSelected.png"></a>
+                        <img class="cartProductImg"
+                             :src="'img/productSingle_middle/' + orderItem.product.firstProductImage.id + '.jpg'">
+                    </td>
+                    <td>
+                        <div class="cartProductLinkOutDiv">
+                            <a :href="'product?pid=' + orderItem.product.id" class="cartProductLink">{{orderItem.product.name}}</a>
+                            <div class="cartProductLinkInnerDiv">
+                                <img src="img/site/creditcard.png" title="支持信用卡支付呀--=-~@^_^@">
+                                <img src="img/site/7day.png" title="消费者保护协议,7天内无条件退货---*^o^*">
+                                <img src="img/site/promise.png" title="承诺品质如一,值得信赖...---#^_^# ">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="cartProductItemOringalPrice">
+                            ¥ {{orderItem.product.originalPrice | formatMoneyFilter}}
+                        </span>
+                        <span class="cartProductItemPromotionPrice">
+                            ¥ {{orderItem.product.promotePrice | formatMoneyFilter }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="cartProductChangeNumberDiv">
+                            <span class="hidden orderItemStock" :pid="orderItem.product.id">
+                                {{orderItem.product.stock}}
+                            </span>
+                            <span class="hidden orderItemPromotePrice" :pid="orderItem.product.id">
+                                {{orderItem.product.promotePrice}}
+                            </span>
+                            <a :pid="orderItem.product.id" class="numberMinus" href="#nowhere">-</a>
+                            <!--suppress HtmlFormInputWithoutLabel -->
+                            <input :pid="orderItem.product.id" :oiid="orderItem.id" class="orderItemNumberSetting"
+                                   autocomplete="off"
+                                   :value="orderItem.number">
+                            <a :pid="orderItem.product.id" :oiid="orderItem.id" class="numberPlus" href="#nowhere">+</a>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="cartProductItemSmallSumPrice" :oiid="orderItem.id" :pid="orderItem.product.id">
+                            {{orderItem.product.promotePrice * orderItem.number | formatMoneyFilter}}
+                        </span>
+                    </td>
+                    <td>
+                        <a class="deleteOrderItem" :oiid="orderItem.id" href="#nowhere">删除</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="cartFoot">
+            <img selectIt="false" class="selectAllItem" src="img/site/cartNotSelected.png">
+            <span>全选</span>
+            <div class="pull-right">
+                <span>已经选择商品<span class="cartSumNumber">0</span>件</span>
+                <span>合计 (不含运费): </span>
+                <span class="cartSumPrice">¥ 0:00</span>
+                <button class="createOrderButton" disabled="disabled">结算</button>
+            </div>
+        </div>
+    </div>
+</div>

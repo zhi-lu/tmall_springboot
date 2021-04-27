@@ -1,0 +1,36 @@
+<!--
+=== 集合里的每个产品，并把产品标题，价格，图片，评价数，成交数打印出来
+===
+-->
+<div th:fragment="html">
+    <div class="categoryProducts">
+        <div v-for="product in category.products" class="productUnit" :price="product.promotePrice">
+            <div class="productUnitFrame">
+                <a :href="'product?pid='+product.id">
+                    <!--suppress HtmlRequiredAltAttribute -->
+                    <img class="productImage"
+                         :src="'img/productSingle_middle/' + product.firstProductImage.id + '.jpg'">
+                </a>
+                <span class="productPrice">{{product.promotePrice | formatMoneyFilter }}</span>
+                <a class="productLink" :href="'product?pid=' + product.id">
+                    {{product.name | subStringFilter(0,45)}}
+                </a>
+                <a class="tmallLink" :href="'product?pid=' + product.id">天猫专卖</a>
+                <div class="show1 productInfo">
+                    <span class="monthDeal">月成交<span class="productDealNumber">{{product.saleCount}}</span>笔</span>
+                    <span class="productReview">评论<span
+                            class="productReviewNumber">{{product.reviewCount}}</span>条</span>
+                    <span class="wangwang">
+                        <!--suppress HtmlUnknownAnchorTarget -->
+                        <a class="wangwangLink" href="#nowhere">
+                            <!--suppress HtmlRequiredAltAttribute -->
+                            <img src="img/site/wangwang.png"/>
+
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div style="clear: both"></div>
+    </div>
+</div>

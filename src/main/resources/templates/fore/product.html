@@ -1,0 +1,22 @@
+<!--suppress ALL-->
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 有关前端产品页面               ===
+===             TODO : 2021/3/21                    ===
+=======================================================
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/fore/header::html('商品页面（￣0 ￣）y')"></head>
+<body>
+<div id="workingArea">
+    <div th:replace="include/fore/top::html"></div>
+    <div th:replace="include/fore/search::html"></div>
+    <div th:replace="include/fore/product/productPage::html"></div>
+    <div th:replace="include/fore/modelLogin::html"></div>
+    <div th:replace="include/fore/footer::html"></div>
+</div>
+</body>
+</html>
