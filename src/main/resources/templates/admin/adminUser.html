@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<!--suppress ALL-->
+<!--
+=======================================================
+===             @author : apple                     ===
+===             @version : html5                    ===
+===             @info : 管理员登录                    ===
+===             TODO : 2021/3/21                    ===
+=======================================================
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:include="include/admin/adminHeader::html('(*´▽`*)❀ -- 管理员登录')"></head>
+<body>
+    <script>
+        $(function (){
+            let data4Vue = {
+                uri : 'loginAdmin',
+                result : [],
+                adminUser : {name : '', password : ''},
+            };
+            let vue = new Vue({
+                el : '#workingArea',
+                data : data4Vue,
+                methods : {
+                    loginAdminUser : function (){
+                        let url = this.uri;
+                        if (0 === this.adminUser.name.length) {
+                            $ ('span.errorMessage').html ("用户名不为空哦（＞﹏＜）");
+                            $ ('div.loginErrorMessageDiv').css ('visibility', 'visible');
+                            return;
+                        }
+                        if (0 === this.adminUser.password.length) {
+                            $ ('span.errorMessage').html ('密码不能为空哦 ╮（￣﹏￣）╭');
+                            $ ('div.loginErrorMessageDiv').css ('visibility', 'visible');
+                            return;
+                        };
+                        axios.post(url,this.adminUser).then(function (response){
+                            let result = response.data;
+                            if (0 === result.code){
+                                location.href = "admin_category_list";
+                            }else {
+                                $ ('span.errorMessage').html (result.message);
+                                $ ('div.loginErrorMessageDiv').css ("visibility", "visible");
+                            }
+                        })
+                    }
+                }
+            });
+            let left = window.innerWidth / 2 + 170;
+            $ ('div.loginSmallDiv').css ("left", left);
+        })
+    </script>
+<div id="workingArea">
+    <div th:replace="include/fore/headerNotTitle::html"></div>
+    <div id="loginDiv" style="position: relative">
+        <img id="loginBackgroundImg" class="loginBackgroundImg" src="img/site/loginBackground.png">
+        <div id="loginSmallDiv" class="loginSmallDiv">
+            <div class="loginErrorMessageDiv">
+                <div class="alert alert-danger">
+                    <button type="button" class="close" data-dismiss="alert"
+                            aria-label="Close"></button>
+                    <span class="errorMessage">22</span>
+                </div>
+            </div>
+            <div class="login_account_text">管理员账号登录</div>
+            <div class="loginInput">
+                <span class="loginInputIcon">
+                    <span class="glyphicon glyphicon-user"></span>
+                </span>
+                <label>
+                    <input v-model="adminUser.name" placeholder="管理员账号 --- ＼（￣︶￣）／" type="text">
+                </label>
+            </div>
+            <div class="loginInput">
+                <span class="loginInput">
+                    <span class="loginInputIcon">
+                        <span class="glyphicon glyphicon-lock"></span>
+                    </span>
+                    <label>
+                        <input v-model="adminUser.password" placeholder="管理员密码 <（￣3￣）>" type="password">
+                    </label>
+                </span>
+            </div>
+            <span class="text-danger">请输入本站"管理员的天猫账号和密码"=o（≧ω≦）o</span>
+            <div>
+                <a class="#nowhere" href="#nowhere">不可找回</a>
+                <a href="#nowhere" class="pull-right">不可注册</a>
+            </div>
+            <div style="margin-top: 20px">
+                <button class="btn btn-block redButton" type="button" @click="loginAdminUser">登录</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <div th:replace="include/admin/adminFooter::html"></div>
+</body>
+</html>

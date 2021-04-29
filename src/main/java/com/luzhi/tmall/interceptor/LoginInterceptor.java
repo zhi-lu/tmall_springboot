@@ -45,6 +45,7 @@ public class LoginInterceptor implements HandlerInterceptor {
                 "bought",
                 "confirmPay",
                 "orderConfirmed",
+                "review",
 
                 "foreBuyOne",
                 "foreBuy",
@@ -82,7 +83,7 @@ public class LoginInterceptor implements HandlerInterceptor {
      * 具体请看:比较字符串
      * @see StringUtils#startsWith(String, String)
      */
-    private boolean ergodicWith(String page, String[] requiredAuthPages) {
+    public static boolean ergodicWith(String page, String[] requiredAuthPages) {
         boolean result = false;
         for (String accessAuthPage : requiredAuthPages) {
             if (StringUtils.startsWith(page, accessAuthPage)) {

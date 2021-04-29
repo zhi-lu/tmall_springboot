@@ -15,13 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AdminPageController {
 
     /**
-     * @see #admin()
-     * 访问 localHost:port/amdin 通过Restful Mapping
-     * 调整到../admin_category_list
+     * @see #adminLogin()
+     * 管理员用户登录界面
      */
-    @GetMapping(value = "/admin")
-    public String admin() {
-        return "redirect:admin_category_list";
+    @GetMapping(value = "/adminLogin")
+    public String adminLogin() {
+        return "admin/adminUser";
     }
 
     /**

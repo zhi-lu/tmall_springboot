@@ -29,6 +29,7 @@ import java.util.List;
 @RestController
 public class ProductImageController {
 
+    @SuppressWarnings("unused")
     @Resource
     CategoryService categoryService;
 

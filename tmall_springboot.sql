@@ -1,6 +1,17 @@
 ﻿DROP DATABASE IF EXISTS tmall_springboot;
 CREATE DATABASE tmall_springboot  DEFAULT CHARACTER SET utf8;
 USE tmall_springboot;
+-- 创建后台管理员表
+CREATE TABLE adminUser(
+
+    id int(11) NOT NULL AUTO_INCREMENT,
+    name varchar (255) DEFAULT NULL,
+    password varchar (255) DEFAULT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8;
+-- 添加后台管理员账户和密码
+-- 账户和密码是: adminUser : {name:'admin', password:'root'}
+INSERT INTO adminUser VALUES (null,'admin','root')
 CREATE TABLE category (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(255) DEFAULT NULL,

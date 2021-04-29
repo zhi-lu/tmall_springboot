@@ -40,11 +40,11 @@ public class PortUtil {
     public static void checkPort(int port, String server, boolean shutdown) {
         if (!testPort(port)) {
             if (shutdown) {
-                String message = String.format("此计算机端口:%d, 服务于\"%s\"未检查到启动.%n", port, server);
+                String message = String.format("此计算机端口:%d, 服务:\"%s\"未检查到启动.%n", port, server);
                 JOptionPane.showMessageDialog(null, message);
                 System.exit(1);
             } else {
-                String message = String.format("此计算机端口:%d, 服务于\"%s\"未检查到启动.是否继续...%n", port, server);
+                String message = String.format("此计算机端口:%d, 服务:\"%s\"未检查到启动.是否继续...%n", port, server);
                 if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, message)) {
                     System.exit(1);
                 }
