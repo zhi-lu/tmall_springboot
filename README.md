@@ -1,6 +1,6 @@
 # tmall_springboot
 
-# 大家好呀,我是雨霖晴子。
+# 大家好呀!
 
 此项目基于 SpringBoot-Vue 开发的天猫整站.
 基于Java 8, Maven, tomcat, mySql 5.7.3..... mysql的账户和密码 user:root, password:admin
