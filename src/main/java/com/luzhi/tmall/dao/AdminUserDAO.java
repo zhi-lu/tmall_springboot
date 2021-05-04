@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AdminUserDAO extends JpaRepository<AdminUser, Integer> {
 
     /**
+     * Jap命名方式.
      * 通过管理员和管理员密码获取管理员对象...
      *
      * @param name     获取管理员登录的用户名Name

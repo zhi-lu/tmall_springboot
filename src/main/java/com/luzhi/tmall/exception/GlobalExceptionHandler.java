@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author apple
  * @version jdk1.8
  * // TODO : 2021/3/21
- * 对于错误的相关处理
+ * 对于异常的相关处理...
  */
 
 @RestController

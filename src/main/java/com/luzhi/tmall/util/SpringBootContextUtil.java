@@ -25,6 +25,7 @@ public class SpringBootContextUtil implements ApplicationContextAware {
         SpringBootContextUtil.applicationContext = applicationContext;
     }
 
+    @SuppressWarnings("unused")
     public static <T> T getBean(Class<T> clazz) {
         return applicationContext.getBean(clazz);
     }

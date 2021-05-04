@@ -11,7 +11,7 @@ CREATE TABLE adminUser(
 ) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8;
 -- 添加后台管理员账户和密码
 -- 账户和密码是: adminUser : {name:'admin', password:'root'}
-INSERT INTO adminUser VALUES (null,'admin','root')
+INSERT INTO adminUser VALUES (null,'admin','root');
 CREATE TABLE category (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(255) DEFAULT NULL,
